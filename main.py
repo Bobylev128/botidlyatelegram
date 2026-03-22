@@ -1,21 +1,22 @@
-import asyncio
 import os
-from aiogram import Bot, Dispatcher
-from aiogram.types import Message
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-API_TOKEN = os.getenv("API_TOKEN")
+# Получаем токен из переменной окружения
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
-bot = Bot(API_TOKEN)
-dp = Dispatcher()
+# Обработка команды /start
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Привет! Бот работает ✅")
 
-@dp.message()
-async def start(msg: Message):
-    if msg.text == "/start":
-        await msg.answer("✅ Бот работает")
-
-async def main():
-    await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot)
-
+# Основная часть
 if __name__ == "__main__":
-    asyncio.run(main())
+    if not TOKEN:
+        print("Ошибка: переменная окружения TELEGRAM_BOT_TOKEN не задана")
+        exit(1)
+
+    app = ApplicationBuilder().token(TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
+
+    print("Бот запущен...")
+    app.run_polling()
