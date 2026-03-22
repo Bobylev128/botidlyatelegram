@@ -1,9 +1,11 @@
-API_TOKEN = "BOT_TOKEN"
+import os
 
-MAIN_CHANNEL_ID = mchid
-ANNOUNCE_CHANNEL_ID = achid
+API_TOKEN = os.getenv("API_TOKEN")
 
-CHANNEL_LINK = "chlink"
-BOT_LINK = "botlink"
+MAIN_CHANNEL_ID = int(os.getenv("mchid"))
+ANNOUNCE_CHANNEL_ID = int(os.getenv("achid"))
 
-ADMIN_ID = admid
+CHANNEL_LINK = int(os.getenv("chlink"))
+BOT_LINK = int(os.getenv("botlink"))
+
+ADMIN_ID = int(os.getenv("admid"))
