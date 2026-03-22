@@ -15,8 +15,8 @@ if not API_TOKEN:
     raise ValueError("❌ API_TOKEN не найден в переменных окружения")
 
 # ---------- CONFIG ----------
-ADMIN_ID = admid
-MAIN_CHANNEL_ID = mchid
+ADMIN_ID = int(os.getenv("admid"))
+MAIN_CHANNEL_ID = int(os.getenv("mchid"))
 # ---------- INIT ----------
 bot = Bot(API_TOKEN)
 dp = Dispatcher()
