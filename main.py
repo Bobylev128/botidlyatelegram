@@ -1,15 +1,30 @@
 import asyncio
+import os
 import aiosqlite
+
 from aiogram import Bot, Dispatcher, F
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
-from config import *
+from dotenv import load_dotenv
 
+# ---------- LOAD ENV ----------
+load_dotenv()
+
+API_TOKEN = os.getenv("API_TOKEN")
+
+if not API_TOKEN:
+    raise ValueError("❌ API_TOKEN не найден в переменных окружения")
+
+# ---------- CONFIG ----------
+ADMIN_ID = 1076811302
+MAIN_CHANNEL_ID = -1003748443166
+
+# ---------- INIT ----------
 bot = Bot(API_TOKEN)
 dp = Dispatcher()
 
 DB = "db.sqlite"
 
-# ---------------- DB ----------------
+# ---------- DB ----------
 async def init_db():
     async with aiosqlite.connect(DB) as db:
         await db.execute("CREATE TABLE IF NOT EXISTS users(user_id INTEGER, username TEXT)")
@@ -17,7 +32,7 @@ async def init_db():
         await db.execute("CREATE TABLE IF NOT EXISTS blacklist(user_id INTEGER)")
         await db.commit()
 
-# ---------------- START ----------------
+# ---------- START ----------
 @dp.message(F.text == "/start")
 async def start(msg: Message):
 
@@ -38,10 +53,10 @@ async def start(msg: Message):
 
     await msg.answer("✅ Вы зарегистрированы")
 
-# ---------------- ADMIN ----------------
+# ---------- ADMIN ----------
 def admin_kb():
     return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Создать батл", callback_data="create")]
+        [InlineKeyboardButton(text="🔥 Создать батл", callback_data="create")]
     ])
 
 @dp.message(F.text == "/admin")
@@ -50,13 +65,13 @@ async def admin(msg: Message):
         return
     await msg.answer("⚙️ Админ панель", reply_markup=admin_kb())
 
-# ---------------- CREATE BATTLE ----------------
+# ---------- CREATE BATTLE ----------
 players = []
 
 @dp.callback_query(F.data == "create")
 async def create(call: CallbackQuery):
     players.clear()
-    await call.message.answer("Введите юзернеймы через пробел:\nпример:\n@user1 @user2")
+    await call.message.answer("Введите участников:\nпример:\n@user1 @user2 @user3")
 
 @dp.message()
 async def add_players(msg: Message):
@@ -69,19 +84,19 @@ async def add_players(msg: Message):
         players = msg.text.split()
 
         kb = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text=f"Голос за {u}", callback_data=f"vote:{u}")]
+            [InlineKeyboardButton(text=f"🗳 Голос за {u}", callback_data=f"vote:{u}")]
             for u in players
         ])
 
         await bot.send_message(
             MAIN_CHANNEL_ID,
-            "🔥 БАТЛ НАЧАЛСЯ\n\nГолосуй:",
+            "🔥 <b>БАТЛ НАЧАЛСЯ</b>\n\n👇 Голосуй 👇",
             reply_markup=kb
         )
 
         await msg.answer("✅ Батл запущен")
 
-# ---------------- VOTE ----------------
+# ---------- VOTE ----------
 @dp.callback_query(F.data.startswith("vote"))
 async def vote(call: CallbackQuery):
 
@@ -92,7 +107,7 @@ async def vote(call: CallbackQuery):
             "SELECT 1 FROM votes WHERE voter_id=?",
             (call.from_user.id,))
         if await cur.fetchone():
-            await call.answer("❌ Уже голосовал")
+            await call.answer("❌ Вы уже голосовали")
             return
 
         await db.execute(
@@ -102,7 +117,7 @@ async def vote(call: CallbackQuery):
 
     await call.answer("✅ Голос принят")
 
-# ---------------- STATS ----------------
+# ---------- STATS ----------
 @dp.message(F.text == "/stats")
 async def stats(msg: Message):
 
@@ -111,14 +126,14 @@ async def stats(msg: Message):
             "SELECT target, COUNT(*) FROM votes GROUP BY target")
         data = await cur.fetchall()
 
-    text = "📊 Результаты:\n\n"
+    text = "📊 <b>Результаты</b>\n\n"
 
     for u, c in data:
         text += f"{u} — {c}\n"
 
     await msg.answer(text)
 
-# ---------------- RUN ----------------
+# ---------- RUN ----------
 async def main():
     await init_db()
     print("🔥 BOT STARTED")
