@@ -32,7 +32,9 @@ async def init_db():
         await db.commit()
 
 # ---------- START ----------
-@dp.message(F.text == "/start")
+@dp.message()
+async def test(msg: Message):
+    await msg.answer("Я живой ✅")
 async def start(msg: Message):
 
     async with aiosqlite.connect(DB) as db:
