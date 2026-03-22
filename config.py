@@ -1,9 +1,0 @@
-API_TOKEN = "BOT_TOKEN"
-
-ADMIN_ID = 1076811302
-
-MAIN_CHANNEL_ID = -1003748443166
-ANNOUNCE_CHANNEL_ID = -1003824977211
-
-CHANNEL_LINK = "https://t.me/windsgift_battles"
-BOT_LINK = "https://t.me/WindsGift_Bot"
