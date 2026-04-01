@@ -7,7 +7,7 @@ router = Router()
 
 
 @router.message(F.text.startswith("/start"))
-async def start(message: Message):
+async def start_handler(message: Message):
     add_user(message.from_user.id)
 
     # проверка бана
@@ -16,11 +16,11 @@ async def start(message: Message):
         await message.answer(f"🚫 Вы забанены\nПричина: {ban[0]}")
         return
 
-    # 🔥 ПРАВИЛЬНЫЙ DEEPLINK ПАРСИНГ
-    args = message.text.split(" ")
+    # ✅ ПРАВИЛЬНЫЙ DEEPLINK
+    parts = message.text.split(" ")
 
-    if len(args) > 1:
-        arg = args[1]
+    if len(parts) > 1:
+        arg = parts[1]
 
         # регистрация
         if arg == "join":
@@ -43,24 +43,20 @@ async def start(message: Message):
                 return
 
             battle_data["players"].append(username)
-            await message.answer("✅ Вы зарегистрированы в батле")
+            await message.answer("✅ Вы зарегистрированы")
             return
 
-        # голосование deeplink
+        # голосование
         if arg.startswith("vote_"):
             try:
                 _, r, g = arg.split("_")
 
-                r = int(r)
-                g = int(g)
-
                 await message.answer(
-                    f"🗳 Вы перешли к голосованию\nРаунд: {r+1}\nГруппа: {g+1}"
+                    f"🗳 Голосование\nРаунд: {int(r)+1}\nГруппа: {int(g)+1}"
                 )
-
             except:
                 await message.answer("❌ Ошибка deeplink")
+
             return
 
-    # обычный вход
-    await message.answer("👋 Добро пожаловать в батл-бот")
+    await message.answer("👋 Добро пожаловать")
